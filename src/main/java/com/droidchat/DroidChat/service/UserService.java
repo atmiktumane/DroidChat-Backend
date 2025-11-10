@@ -8,4 +8,6 @@ public interface UserService {
     ResponseDTO registerUser(UserDTO userDto);
 
     UserDTO loginUser(LoginDTO loginDTO);
+
+    ResponseDTO sendOtp(String email) throws Exception;
 }

@@ -5,8 +5,10 @@ import com.droidchat.DroidChat.dto.ResponseDTO;
 import com.droidchat.DroidChat.dto.UserDTO;
 import com.droidchat.DroidChat.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.constraints.Email;
 
 @CrossOrigin
 @RestController
@@ -25,5 +27,11 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserDTO> loginUser(@RequestBody LoginDTO loginDTO){
         return ResponseEntity.ok(userService.loginUser(loginDTO));
+    }
+
+    // POST - Send OTP
+    @PostMapping("/sendOtp/{email}")
+    public ResponseEntity<ResponseDTO> sendOtp(@PathVariable @Email(message = "Email is invalid.") String email) throws Exception{
+        return new ResponseEntity<>(userService.sendOtp(email), HttpStatus.OK);
     }
 }

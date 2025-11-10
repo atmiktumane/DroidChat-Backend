@@ -6,12 +6,21 @@ import com.droidchat.DroidChat.dto.UserDTO;
 import com.droidchat.DroidChat.exception.EmailAlreadyExistsException;
 import com.droidchat.DroidChat.exception.EmptyFieldException;
 import com.droidchat.DroidChat.exception.InvalidCredentialsException;
+import com.droidchat.DroidChat.model.OtpModel;
 import com.droidchat.DroidChat.model.UserModel;
+import com.droidchat.DroidChat.repository.OtpRepository;
 import com.droidchat.DroidChat.repository.UserRepository;
 import com.droidchat.DroidChat.service.UserService;
+import com.droidchat.DroidChat.utility.Data;
+import com.droidchat.DroidChat.utility.Utilities;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -19,7 +28,13 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private OtpRepository otpRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Override
     public ResponseDTO registerUser(UserDTO userDto){
@@ -67,5 +82,40 @@ public class UserServiceImpl implements UserService {
 
         // Prepare Login Response body
         return userDto;
+    }
+
+    @Override
+    public ResponseDTO sendOtp(String email) throws Exception {
+//         // Testing
+//        System.out.println("Email in API request params : "+ email);
+
+        // Check if Email is present or not
+        UserModel user = userRepository.findByEmail(email).orElseThrow(()-> new InvalidCredentialsException("Invalid email"));
+
+        // MimeMessage : return HTML Body in Message
+        MimeMessage mailMessage = mailSender.createMimeMessage();
+        MimeMessageHelper message = new MimeMessageHelper(mailMessage, true);
+
+        message.setTo(email); // Set Receiver Email
+        message.setSubject("Your OTP Code"); // Set Email Subject
+
+        // Generate OTP from Utilities
+        String generatedOtp = Utilities.generateOTP();
+
+        // Create otp data object with Given Data (i.e., email, otpCode, currentTime)
+        OtpModel otp = new OtpModel(email, generatedOtp, LocalDateTime.now());
+
+        // Save otp data in Database
+        otpRepository.save(otp);
+
+        // Username of receiver
+        String username = user.getName();
+
+        // Email Body - Call "Data" Utility Class
+        message.setText(Data.otpEmailBody(generatedOtp, username), true);
+
+        mailSender.send(mailMessage);
+
+        return new ResponseDTO("OTP sent successfully");
     }
 }
