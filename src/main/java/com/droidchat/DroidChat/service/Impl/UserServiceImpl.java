@@ -3,6 +3,7 @@ package com.droidchat.DroidChat.service.Impl;
 import com.droidchat.DroidChat.dto.ResponseDTO;
 import com.droidchat.DroidChat.dto.UserDTO;
 import com.droidchat.DroidChat.exception.EmailAlreadyExistsException;
+import com.droidchat.DroidChat.exception.EmptyFieldException;
 import com.droidchat.DroidChat.model.UserModel;
 import com.droidchat.DroidChat.repository.UserRepository;
 import com.droidchat.DroidChat.service.UserService;
@@ -20,6 +21,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseDTO registerUser(UserDTO userDto){
+
+        // Check if email is Empty
+        if(userDto.getEmail().isEmpty()){
+            throw new EmptyFieldException("Please provide email");
+        }
+
         // Check if Email already exists
         if(userRepository.findByEmail(userDto.getEmail()).isPresent()){
             throw new EmailAlreadyExistsException("Email already exists : "+userDto.getEmail());
