@@ -1,5 +1,6 @@
 package com.droidchat.DroidChat.controller;
 
+import com.droidchat.DroidChat.dto.ResponseDTO;
 import com.droidchat.DroidChat.dto.UserDTO;
 import com.droidchat.DroidChat.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class UserController {
 
     // Register
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@RequestBody UserDTO userDto){
+    public ResponseEntity<ResponseDTO> registerUser(@RequestBody UserDTO userDto){
         return ResponseEntity.ok(userService.registerUser((userDto)));
     }
 }
