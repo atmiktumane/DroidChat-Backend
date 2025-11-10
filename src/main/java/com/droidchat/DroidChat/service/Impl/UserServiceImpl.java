@@ -1,9 +1,11 @@
 package com.droidchat.DroidChat.service.Impl;
 
+import com.droidchat.DroidChat.dto.LoginDTO;
 import com.droidchat.DroidChat.dto.ResponseDTO;
 import com.droidchat.DroidChat.dto.UserDTO;
 import com.droidchat.DroidChat.exception.EmailAlreadyExistsException;
 import com.droidchat.DroidChat.exception.EmptyFieldException;
+import com.droidchat.DroidChat.exception.InvalidCredentialsException;
 import com.droidchat.DroidChat.model.UserModel;
 import com.droidchat.DroidChat.repository.UserRepository;
 import com.droidchat.DroidChat.service.UserService;
@@ -45,5 +47,25 @@ public class UserServiceImpl implements UserService {
         UserModel savedUser = userRepository.save(userModel);
 
         return new ResponseDTO("User is registered successfully !");
+    }
+
+    @Override
+    public UserDTO loginUser(LoginDTO loginDTO) {
+        // Check if User is present or not
+        UserModel user = userRepository.findByEmail(loginDTO.getEmail()).orElseThrow(()-> new InvalidCredentialsException("Invalid Email or Password"));
+
+        // Match Password
+        if(!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())){
+            throw new InvalidCredentialsException("Invalid Email or Password");
+        }
+
+//        System.out.println("User Data : "+ user.convertToUserDTO());
+
+        UserDTO userDto = user.convertToUserDTO();
+
+        userDto.setPassword("");
+
+        // Prepare Login Response body
+        return userDto;
     }
 }

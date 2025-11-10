@@ -1,5 +1,6 @@
 package com.droidchat.DroidChat.controller;
 
+import com.droidchat.DroidChat.dto.LoginDTO;
 import com.droidchat.DroidChat.dto.ResponseDTO;
 import com.droidchat.DroidChat.dto.UserDTO;
 import com.droidchat.DroidChat.service.UserService;
@@ -14,9 +15,15 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // Register
+    // POST - Register
     @PostMapping("/register")
     public ResponseEntity<ResponseDTO> registerUser(@RequestBody UserDTO userDto){
         return ResponseEntity.ok(userService.registerUser((userDto)));
+    }
+
+    // POST - Login
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> loginUser(@RequestBody LoginDTO loginDTO){
+        return ResponseEntity.ok(userService.loginUser(loginDTO));
     }
 }
