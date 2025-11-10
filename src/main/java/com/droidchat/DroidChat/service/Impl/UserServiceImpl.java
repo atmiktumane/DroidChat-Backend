@@ -18,10 +18,12 @@ import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -144,5 +146,23 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return new ResponseDTO("Password updated successfully");
+    }
+
+    // Expire OTP - Job Scheduler (Check Expired OTPs every Minute and delete them)
+    @Scheduled(fixedRate = 60000) // 60 seconds - Run below function every Minute automatically
+    public void removeExpiredOTPs(){
+        // Current Time minus 5 minutes
+        LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(5);
+
+        // Store Expired OTPs in List - OTPs having 5 minutes Expiry Time
+        List<OtpModel> expiredOTPList = otpRepository.findByCreationTimeBefore(expiryTime);
+
+        // Delete all Expired OTPs from Database
+        if(!expiredOTPList.isEmpty()){
+            otpRepository.deleteAll(expiredOTPList);
+
+//            System.out.println("Removed "+ expiredOTPList.size() + " expired OTPs. ");
+        }
+
     }
 }
