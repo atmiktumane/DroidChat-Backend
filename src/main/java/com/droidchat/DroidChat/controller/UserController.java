@@ -41,4 +41,10 @@ public class UserController {
     public ResponseEntity<ResponseDTO> verifyOtp(@PathVariable @Email(message = "Email is invalid.") String email, @PathVariable @Pattern(regexp = "^[0-9]{6}$", message = "OTP is invalid.") String otp) throws Exception{
         return new ResponseEntity<>(userService.verifyOtp(email, otp), HttpStatus.OK);
     }
+
+    // POST - Change Password
+    @PostMapping("/changePassword")
+    public ResponseEntity<ResponseDTO> changePassword(@RequestBody LoginDTO loginDTO){
+        return new ResponseEntity<>(userService.changePassword(loginDTO), HttpStatus.OK);
+    }
 }

@@ -12,4 +12,6 @@ public interface UserService {
     ResponseDTO sendOtp(String email) throws Exception;
 
     ResponseDTO verifyOtp(String email, String otp) throws Exception;
+
+    ResponseDTO changePassword(LoginDTO loginDTO);
 }
