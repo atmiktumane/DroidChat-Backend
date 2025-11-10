@@ -10,4 +10,6 @@ public interface UserService {
     UserDTO loginUser(LoginDTO loginDTO);
 
     ResponseDTO sendOtp(String email) throws Exception;
+
+    ResponseDTO verifyOtp(String email, String otp) throws Exception;
 }

@@ -6,6 +6,7 @@ import com.droidchat.DroidChat.dto.UserDTO;
 import com.droidchat.DroidChat.exception.EmailAlreadyExistsException;
 import com.droidchat.DroidChat.exception.EmptyFieldException;
 import com.droidchat.DroidChat.exception.InvalidCredentialsException;
+import com.droidchat.DroidChat.exception.ResourceNotFoundException;
 import com.droidchat.DroidChat.model.OtpModel;
 import com.droidchat.DroidChat.model.UserModel;
 import com.droidchat.DroidChat.repository.OtpRepository;
@@ -117,5 +118,17 @@ public class UserServiceImpl implements UserService {
         mailSender.send(mailMessage);
 
         return new ResponseDTO("OTP sent successfully");
+    }
+
+    @Override
+    public ResponseDTO verifyOtp(String email, String otp) throws Exception {
+        OtpModel otpEntity = otpRepository.findById(email).orElseThrow(()-> new ResourceNotFoundException("OTP not found"));
+
+        // if otp does not matches, throw error
+        if(!otpEntity.getOtpCode().equals(otp)){
+            throw new ResourceNotFoundException("OTP is Incorrect");
+        }
+
+        return new ResponseDTO("OTP is successfully verified");
     }
 }

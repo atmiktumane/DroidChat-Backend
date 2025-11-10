@@ -4,11 +4,12 @@ import com.droidchat.DroidChat.dto.LoginDTO;
 import com.droidchat.DroidChat.dto.ResponseDTO;
 import com.droidchat.DroidChat.dto.UserDTO;
 import com.droidchat.DroidChat.service.UserService;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.constraints.Email;
 
 @CrossOrigin
 @RestController
@@ -33,5 +34,11 @@ public class UserController {
     @PostMapping("/sendOtp/{email}")
     public ResponseEntity<ResponseDTO> sendOtp(@PathVariable @Email(message = "Email is invalid.") String email) throws Exception{
         return new ResponseEntity<>(userService.sendOtp(email), HttpStatus.OK);
+    }
+
+    // GET - Verify OTP
+    @GetMapping("/verifyOtp/{email}/{otp}")
+    public ResponseEntity<ResponseDTO> verifyOtp(@PathVariable @Email(message = "Email is invalid.") String email, @PathVariable @Pattern(regexp = "^[0-9]{6}$", message = "OTP is invalid.") String otp) throws Exception{
+        return new ResponseEntity<>(userService.verifyOtp(email, otp), HttpStatus.OK);
     }
 }
